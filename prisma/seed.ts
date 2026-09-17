@@ -83,6 +83,67 @@ async function main() {
     }
   }
 
+  // Citas de ejemplo para que el panel no se vea vacío en una demo.
+  function isoDaysFromNow(days: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+  const svc = (name: string) => serviceRecords.find((s) => s.name === name)!;
+  const brb = (name: string) => barberRecords.find((b) => b.name === name)!;
+
+  const demoClients = [
+    { phone: "+56911111111", name: "Andrés Muñoz", email: null },
+    { phone: "+56922222222", name: "Felipe Rojas", email: null },
+    { phone: "+56933333333", name: "Diego Salas", email: null },
+    { phone: "+56944444444", name: "Camilo Vera", email: null },
+    { phone: "+56955555555", name: "Ignacio Prat", email: null },
+  ];
+  const clientRecords = [];
+  for (const c of demoClients) {
+    const rec = await prisma.client.upsert({ where: { phone: c.phone }, update: {}, create: c });
+    clientRecords.push(rec);
+  }
+
+  const demoBookings: {
+    date: string;
+    startMin: number;
+    service: ReturnType<typeof svc>;
+    barber: ReturnType<typeof brb>;
+    client: (typeof clientRecords)[number];
+    status: "DONE" | "CONFIRMED" | "PENDING" | "CANCELLED";
+  }[] = [
+    { date: isoDaysFromNow(0), startMin: MIN(10), service: svc("Corte Clásico"), barber: brb("Mateo Rivas"), client: clientRecords[0], status: "DONE" },
+    { date: isoDaysFromNow(0), startMin: MIN(11, 30), service: svc("Fade / Degradado"), barber: brb("Julián Torres"), client: clientRecords[1], status: "DONE" },
+    { date: isoDaysFromNow(0), startMin: MIN(14), service: svc("Corte + Barba"), barber: brb("Simón Vega"), client: clientRecords[2], status: "CONFIRMED" },
+    { date: isoDaysFromNow(0), startMin: MIN(16, 30), service: svc("Perfilado de Barba"), barber: brb("Mateo Rivas"), client: clientRecords[3], status: "PENDING" },
+    { date: isoDaysFromNow(1), startMin: MIN(10, 30), service: svc("Servicio Premium"), barber: brb("Noah Dumas"), client: clientRecords[4], status: "CONFIRMED" },
+    { date: isoDaysFromNow(1), startMin: MIN(15), service: svc("Fade / Degradado"), barber: brb("Julián Torres"), client: clientRecords[0], status: "CONFIRMED" },
+    { date: isoDaysFromNow(2), startMin: MIN(12), service: svc("Corte Clásico"), barber: brb("Simón Vega"), client: clientRecords[1], status: "PENDING" },
+    { date: isoDaysFromNow(-1), startMin: MIN(17), service: svc("Corte + Barba"), barber: brb("Mateo Rivas"), client: clientRecords[2], status: "CANCELLED" },
+  ];
+
+  for (const b of demoBookings) {
+    const exists = await prisma.booking.findFirst({
+      where: { date: b.date, startMin: b.startMin, barberId: b.barber.id },
+    });
+    if (exists) continue;
+    await prisma.booking.create({
+      data: {
+        code: "DB-" + Math.floor(10000 + Math.random() * 89999),
+        date: b.date,
+        startMin: b.startMin,
+        endMin: b.startMin + (b.service.defaultDurationMin as number),
+        status: b.status,
+        serviceId: b.service.id,
+        barberId: b.barber.id,
+        clientId: b.client.id,
+        customerName: b.client.name,
+        customerPhone: b.client.phone,
+      },
+    });
+  }
+
   const adminEmail = "admin@destinybarber.com";
   const adminPassword = "Destiny2026!";
   const passwordHash = await bcrypt.hash(adminPassword, 10);
