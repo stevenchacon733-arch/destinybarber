@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ARRIVED
+  IN_SERVICE
+  DONE
+  CANCELLED
+  NO_SHOW
+}
+
+/// Configuración general del local. Fila única (id = 1).
+model Settings {
+  id                 Int      @id @default(1)
+  shopName           String   @default("Destiny Barber")
+  logoUrl            String?
+  phone              String?
+  whatsapp           String?
+  address            String?
+  instagram          String?
+  currency           String   @default("CLP")
+  slotIntervalMin    Int      @default(15)
+  bufferMin          Int      @default(0)
+  minLeadHours        Int      @default(1)
+  maxAdvanceDays     Int      @default(30)
+  cancellationPolicy String   @default("Puedes cancelar o reprogramar hasta 2 horas antes de tu cita.")
+  cancelWindowHours  Int      @default(2)
+  confirmationText   String   @default("¡Gracias! Tu cita quedó pre-agendada. Te esperamos.")
+  updatedAt          DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+model Barber {
+  id        String   @id @default(cuid())
+  name      String
+  specialty String?
+  bio       String?
+  photoUrl  String?
+  rating    Float?   @default(4.9)
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  services   BarberService[]
+  hours      WorkingHours[]
+  exceptions ScheduleException[]
+  blocks     Block[]
+  bookings   Booking[]
+}
+
+model Service {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  description        String?
+  defaultDurationMin Int
+  price              Int
+  active             Boolean  @default(true)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+
+  barbers  BarberService[]
+  bookings Booking[]
+}
+
+/// Qué servicios hace cada barbero, con duración/precio propios opcionales.
+model BarberService {
+  id          Int     @id @default(autoincrement())
+  barberId    String
+  serviceId   Int
+  durationMin Int?
+  price       Int?
+  barber      Barber  @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([barberId, serviceId])
+}
+
+/// Horario recurrente semanal. weekday: 0=domingo…6=sábado.
+/// barberId null = horario general del local (usado como base si el barbero no tiene uno propio).
+model WorkingHours {
+  id       Int     @id @default(autoincrement())
+  barberId String?
+  weekday  Int
+  startMin Int
+  endMin   Int
+  barber   Barber? @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@index([barberId, weekday])
+}
+
+/// Excepción puntual por fecha: día libre completo o rango especial.
+/// barberId null = aplica a todo el local (feriado, cierre excepcional).
+model ScheduleException {
+  id       Int     @id @default(autoincrement())
+  barberId String?
+  date     String
+  type     String
+  startMin Int?
+  endMin   Int?
+  reason   String?
+  barber   Barber? @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@index([barberId, date])
+}
+
+/// Bloqueo manual de agenda (reunión, limpieza, descanso puntual).
+model Block {
+  id       Int     @id @default(autoincrement())
+  barberId String
+  date     String
+  startMin Int
+  endMin   Int
+  reason   String?
+  barber   Barber  @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@index([barberId, date])
+}
+
+model Client {
+  id           String   @id @default(cuid())
+  phone        String   @unique
+  name         String
+  email        String?
+  notes        String?
+  frequentFlag Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  bookings Booking[]
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  date          String
+  startMin      Int
+  endMin        Int
+  status        BookingStatus @default(PENDING)
+  serviceId     Int
+  barberId      String
+  clientId      String?
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  notes         String?
+  internalNotes String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+  barber  Barber  @relation(fields: [barberId], references: [id])
+  client  Client? @relation(fields: [clientId], references: [id])
+
+  @@index([barberId, date])
+  @@index([date])
+}
+
+model WaitlistEntry {
+  id            String   @id @default(cuid())
+  serviceId     Int
+  barberId      String?
+  date          String
+  customerName  String
+  customerPhone String
+  notified      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+/// Cola/registro de notificaciones. Hoy solo queda "pending"/"skipped_not_configured":
+/// el envío real (WhatsApp/email/SMS) se conecta más adelante con credenciales de terceros.
+model NotificationLog {
+  id        Int      @id @default(autoincrement())
+  bookingId String
+  channel   String
+  type      String
+  status    String   @default("skipped_not_configured")
+  payload   String?
+  createdAt DateTime @default(now())
+}

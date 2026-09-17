@@ -1,0 +1,27 @@
+import Link from "next/link";
+import LogoutButton from "./LogoutButton";
+
+export default function AdminShellLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col sm:flex-row">
+      <aside className="sm:w-56 shrink-0 border-b sm:border-b-0 sm:border-r border-white/10 p-5 flex sm:flex-col justify-between sm:justify-start gap-6">
+        <div>
+          <p className="font-mono text-[0.65rem] tracking-[0.3em] text-gold uppercase">Destiny Barber</p>
+          <p className="font-display text-lg mt-1">Panel</p>
+        </div>
+        <nav className="flex sm:flex-col gap-1 font-mono text-xs uppercase tracking-wide">
+          <Link href="/admin" className="px-3 py-2 hover:text-gold-bright text-cream-dim">
+            Dashboard
+          </Link>
+          <Link href="/admin/citas" className="px-3 py-2 hover:text-gold-bright text-cream-dim">
+            Citas
+          </Link>
+        </nav>
+        <div className="sm:mt-auto">
+          <LogoutButton />
+        </div>
+      </aside>
+      <main className="flex-1 p-5 sm:p-8">{children}</main>
+    </div>
+  );
+}
