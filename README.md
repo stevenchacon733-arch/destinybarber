@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Destiny Barber — Sistema de reservas
 
-## Getting Started
+App de reservas y panel administrativo para Destiny Barber. Next.js (App Router) + Prisma + SQLite en desarrollo local.
 
-First, run the development server:
+## Desarrollo local
 
 ```bash
+npm install
+npm run db:migrate   # crea/actualiza la base local (prisma/dev.db)
+npm run db:seed      # datos de ejemplo: servicios, barberos, admin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Reserva pública: http://localhost:3000/reservar
+- Mis citas: http://localhost:3000/mis-citas
+- Panel del dueño: http://localhost:3000/admin (login: `admin@destinybarber.com` / `Destiny2026!` — cámbialo antes de producción)
+- Editor visual de la base de datos: `npm run db:studio`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Desplegar en Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**SQLite no sirve en Vercel** (su filesystem es efímero). Antes de desplegar:
 
-## Learn More
+1. Importa este repo en Vercel (New Project → Import from GitHub).
+2. En el proyecto de Vercel, agrega una base de datos Postgres (integración "Storage → Postgres" de Vercel, o Neon) — esto inyecta `DATABASE_URL` automáticamente en las variables de entorno.
+3. Cambia `prisma/schema.prisma`: `provider = "postgresql"` (el modelo de datos ya es compatible, no requiere cambios de tipos).
+4. Corre `npx prisma migrate deploy` contra esa base (localmente, apuntando `DATABASE_URL` a la Postgres real, o desde un build step de Vercel).
+5. En Vercel, agrega también la variable de entorno `SESSION_SECRET` (genera una nueva, no reutilices la de `.env` local) y `TZ=America/Santiago` (o la zona horaria real del local) para que "hoy" y los horarios se calculen correctamente en el servidor.
+6. Vuelve a correr `npm run db:seed` apuntando a la base de producción para crear el primer usuario admin (o créalo manualmente).
 
-To learn more about Next.js, take a look at the following resources:
+## Estructura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `prisma/schema.prisma` — modelo de datos (servicios, barberos, horarios, excepciones, bloqueos, citas, clientes, configuración).
+- `src/lib/availability.ts` — motor de disponibilidad (cruza horario del local, del barbero, duración del servicio, citas existentes y bloqueos; nunca permite doble reserva).
+- `src/lib/auth.ts`, `src/proxy.ts` — sesión de administrador (cookie firmada) y protección de rutas `/admin/*`.
+- `src/app/reservar` — asistente de reserva de 6 pasos (cliente).
+- `src/app/mis-citas` — consulta/cancelación por teléfono o código (cliente).
+- `src/app/admin` — dashboard y gestión de citas (dueño).
