@@ -86,9 +86,15 @@ async function main() {
 
   // Citas de ejemplo para que el panel no se vea vacío en una demo.
   function isoDaysFromNow(days: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 10);
+    const fmt = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Santiago",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const now = new Date();
+    now.setDate(now.getDate() + days);
+    return fmt.format(now);
   }
   const svc = (name: string) => serviceRecords.find((s) => s.name === name)!;
   const brb = (name: string) => barberRecords.find((b) => b.name === name)!;

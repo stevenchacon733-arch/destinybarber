@@ -1,6 +1,9 @@
+-- CreateEnum
+CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'ARRIVED', 'IN_SERVICE', 'DONE', 'CANCELLED', 'NO_SHOW');
+
 -- CreateTable
 CREATE TABLE "Settings" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "id" INTEGER NOT NULL DEFAULT 1,
     "shopName" TEXT NOT NULL DEFAULT 'Destiny Barber',
     "logoUrl" TEXT,
     "phone" TEXT,
@@ -15,106 +18,119 @@ CREATE TABLE "Settings" (
     "cancellationPolicy" TEXT NOT NULL DEFAULT 'Puedes cancelar o reprogramar hasta 2 horas antes de tu cita.',
     "cancelWindowHours" INTEGER NOT NULL DEFAULT 2,
     "confirmationText" TEXT NOT NULL DEFAULT '¡Gracias! Tu cita quedó pre-agendada. Te esperamos.',
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Settings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "AdminUser" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Barber" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "specialty" TEXT,
     "bio" TEXT,
     "photoUrl" TEXT,
-    "rating" REAL DEFAULT 4.9,
+    "rating" DOUBLE PRECISION DEFAULT 4.9,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Barber_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Service" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "defaultDurationMin" INTEGER NOT NULL,
     "price" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Service_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "BarberService" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "barberId" TEXT NOT NULL,
     "serviceId" INTEGER NOT NULL,
     "durationMin" INTEGER,
     "price" INTEGER,
-    CONSTRAINT "BarberService_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "BarberService_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "BarberService_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "WorkingHours" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "barberId" TEXT,
     "weekday" INTEGER NOT NULL,
     "startMin" INTEGER NOT NULL,
     "endMin" INTEGER NOT NULL,
-    CONSTRAINT "WorkingHours_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "WorkingHours_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "ScheduleException" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "barberId" TEXT,
     "date" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "startMin" INTEGER,
     "endMin" INTEGER,
     "reason" TEXT,
-    CONSTRAINT "ScheduleException_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "ScheduleException_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Block" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "barberId" TEXT NOT NULL,
     "date" TEXT NOT NULL,
     "startMin" INTEGER NOT NULL,
     "endMin" INTEGER NOT NULL,
     "reason" TEXT,
-    CONSTRAINT "Block_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Block_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Client" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT,
     "notes" TEXT,
     "frequentFlag" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Booking" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "date" TEXT NOT NULL,
     "startMin" INTEGER NOT NULL,
     "endMin" INTEGER NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "status" "BookingStatus" NOT NULL DEFAULT 'PENDING',
     "serviceId" INTEGER NOT NULL,
     "barberId" TEXT NOT NULL,
     "clientId" TEXT,
@@ -123,34 +139,37 @@ CREATE TABLE "Booking" (
     "customerEmail" TEXT,
     "notes" TEXT,
     "internalNotes" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Booking_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Booking_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Booking_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Booking_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "WaitlistEntry" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "serviceId" INTEGER NOT NULL,
     "barberId" TEXT,
     "date" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
     "customerPhone" TEXT NOT NULL,
     "notified" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "WaitlistEntry_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "NotificationLog" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "bookingId" TEXT NOT NULL,
     "channel" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'skipped_not_configured',
     "payload" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "NotificationLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -179,3 +198,27 @@ CREATE INDEX "Booking_barberId_date_idx" ON "Booking"("barberId", "date");
 
 -- CreateIndex
 CREATE INDEX "Booking_date_idx" ON "Booking"("date");
+
+-- AddForeignKey
+ALTER TABLE "BarberService" ADD CONSTRAINT "BarberService_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BarberService" ADD CONSTRAINT "BarberService_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkingHours" ADD CONSTRAINT "WorkingHours_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ScheduleException" ADD CONSTRAINT "ScheduleException_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Block" ADD CONSTRAINT "Block_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_barberId_fkey" FOREIGN KEY ("barberId") REFERENCES "Barber"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;

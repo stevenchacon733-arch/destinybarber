@@ -3,10 +3,30 @@
  * calendario del local, sin hora) y minutos-desde-medianoche (enteros).
  * Nunca se usan objetos Date con offset UTC para la lógica de horarios —
  * así se evitan los errores de zona horaria que cambian el día o la hora
- * al cruzar medianoche en UTC. El servidor debe correr con TZ configurado
- * a la zona horaria real del local (variable de entorno TZ, ej.
- * "America/Santiago") para que "hoy" y "ahora" sean correctos.
+ * al cruzar medianoche en UTC.
+ *
+ * "Hoy" y "ahora" (todayISO/nowMinInDay) se calculan explícitamente en la
+ * zona horaria del local vía Intl, en vez de depender de la zona horaria
+ * del proceso del servidor: Vercel no deja fijar la variable TZ (nombre
+ * reservado) y corre en UTC, así que confiar en new Date().getHours()
+ * daría la hora equivocada en producción.
  */
+const SHOP_TZ = "America/Santiago";
+
+function shopParts(date: Date) {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: SHOP_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts: Record<string, string> = {};
+  for (const p of fmt.formatToParts(date)) parts[p.type] = p.value;
+  return parts;
+}
 
 export function toMin(hhmm: string): number {
   const [h, m] = hhmm.split(":").map(Number);
@@ -30,8 +50,8 @@ export function weekdayOfISO(dateISO: string): number {
 }
 
 export function todayISO(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const p = shopParts(new Date());
+  return `${p.year}-${p.month}-${p.day}`;
 }
 
 export function addDaysISO(dateISO: string, days: number): string {
@@ -49,8 +69,8 @@ export function daysBetweenISO(a: string, b: string): number {
 }
 
 export function nowMinInDay(): number {
-  const now = new Date();
-  return now.getHours() * 60 + now.getMinutes();
+  const p = shopParts(new Date());
+  return Number(p.hour) * 60 + Number(p.minute);
 }
 
 const WEEKDAY_LABEL = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];

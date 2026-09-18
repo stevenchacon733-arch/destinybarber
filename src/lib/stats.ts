@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { addDaysISO, todayISO } from "./time";
+import { addDaysISO, todayISO, weekdayOfISO } from "./time";
 import type { BookingStatus } from "@prisma/client";
 
 export async function getDashboardStats() {
@@ -33,7 +33,7 @@ export async function getDashboardStats() {
   }
 
   const shopHours = await prisma.workingHours.findMany({
-    where: { barberId: null, weekday: new Date().getDay() },
+    where: { barberId: null, weekday: weekdayOfISO(today) },
   });
   const openMinutes = shopHours.reduce((sum, h) => sum + (h.endMin - h.startMin), 0);
   const bookedMinutes = todayBookings.reduce((sum, b) => sum + (b.endMin - b.startMin), 0);
