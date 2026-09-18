@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import type { Service, Barber, Client } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -46,7 +47,7 @@ async function main() {
     { name: "Servicio Premium", description: "Corte, barba, tratamiento capilar y ritual de navaja completo.", defaultDurationMin: 90, price: 42000, sortOrder: 5 },
   ];
 
-  const serviceRecords = [];
+  const serviceRecords: Service[] = [];
   for (const s of services) {
     const rec = await prisma.service.upsert({
       where: { id: services.indexOf(s) + 1 },
@@ -63,7 +64,7 @@ async function main() {
     { name: "Noah Dumas", specialty: "Color y textura", bio: "Especialista en canas, textura y acabados mate.", sortOrder: 4 },
   ];
 
-  const barberRecords = [];
+  const barberRecords: Barber[] = [];
   for (const b of barbers) {
     const existing = await prisma.barber.findFirst({ where: { name: b.name } });
     const rec = existing
@@ -99,7 +100,7 @@ async function main() {
     { phone: "+56944444444", name: "Camilo Vera", email: null },
     { phone: "+56955555555", name: "Ignacio Prat", email: null },
   ];
-  const clientRecords = [];
+  const clientRecords: Client[] = [];
   for (const c of demoClients) {
     const rec = await prisma.client.upsert({ where: { phone: c.phone }, update: {}, create: c });
     clientRecords.push(rec);
