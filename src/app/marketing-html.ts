@@ -75,9 +75,9 @@ export const marketingHtml = `
 
       <div class="hero-media" data-reveal>
         <div class="ph">
-          <div class="ph-tag">
+          <div class="ph-tag ph-tag-compact">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
-            <span>Fotografía cinematográfica — retrato de sillón, luz cálida lateral</span>
+            <span>Retrato de sillón — luz cálida</span>
           </div>
         </div>
         <div class="float-card">
@@ -112,13 +112,11 @@ export const marketingHtml = `
       <div class="compare-panel compare-after ph">
         <div class="ph-tag">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
-          <span>Después — fade limpio y barba perfilada</span>
         </div>
       </div>
       <div class="compare-panel compare-before ph">
         <div class="ph-tag">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
-          <span>Antes — corte sin trabajar</span>
         </div>
       </div>
       <span class="compare-label label-before">Antes</span>

@@ -159,6 +159,7 @@ export const marketingCss = `
   }
   .db-page .ph .ph-tag svg{ color:var(--gold); flex:none; }
   .db-page .hero-media .ph{ aspect-ratio:4/5; }
+  .db-page .hero-media .ph-tag-compact{ justify-content:flex-end; text-align:right; }
   .db-page .hero-media .ph-caption{
     margin-top:var(--space-2); display:flex; justify-content:space-between; gap:var(--space-2);
     font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.06em; color:var(--cream-dim);
@@ -184,7 +185,6 @@ export const marketingCss = `
   .db-page .ticker a:hover, .db-page .ticker a:focus-visible{ color:var(--gold-bright); transform:scale(1.06); }
   .db-page .ticker a:focus-visible{ outline:2px solid var(--gold-bright); outline-offset:3px; }
   @keyframes ticker{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce){ .db-page .ticker{ animation:none; } }
 
   /* antes / despues comparador */
   .db-page .compare{
