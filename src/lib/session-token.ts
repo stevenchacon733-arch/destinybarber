@@ -1,7 +1,10 @@
 import { SignJWT, jwtVerify } from "jose";
 
 /** Sin dependencias de next/headers — usable en middleware (Edge runtime). */
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET ?? "dev-insecure-secret-change-me");
+const secretValue = process.env.SESSION_SECRET && process.env.SESSION_SECRET.length > 0
+  ? process.env.SESSION_SECRET
+  : "dev-insecure-secret-change-me";
+const secret = new TextEncoder().encode(secretValue);
 
 export const ADMIN_COOKIE_NAME = "db_admin_session";
 
