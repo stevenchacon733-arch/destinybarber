@@ -23,6 +23,9 @@ model Settings {
   id                 Int      @id @default(1)
   shopName           String   @default("Destiny Barber")
   logoUrl            String?
+  heroImageUrl       String?
+  compareBeforeUrl   String?
+  compareAfterUrl    String?
   phone              String?
   whatsapp           String?
   address            String?

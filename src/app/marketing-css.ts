@@ -158,6 +158,8 @@ export const marketingCss = `
     width:100%;
   }
   .db-page .ph .ph-tag svg{ color:var(--gold); flex:none; }
+  .db-page .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .db-page .ph-has-image::before{ display:none; }
   .db-page .hero-media .ph{ aspect-ratio:4/5; }
   .db-page .hero-media .ph-tag-compact{ justify-content:flex-end; text-align:right; }
   .db-page .hero-media .ph-caption{

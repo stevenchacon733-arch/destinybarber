@@ -1,4 +1,21 @@
-export const marketingHtml = `
+export type MarketingImages = {
+  hero?: string | null;
+  compareBefore?: string | null;
+  compareAfter?: string | null;
+  barbers?: (string | null | undefined)[];
+};
+
+function photoOrPlaceholder(url: string | null | undefined, placeholderInner: string): string {
+  return url ? `<img src="${url}" alt="" loading="lazy" />` : placeholderInner;
+}
+
+function phClass(url: string | null | undefined): string {
+  return url ? "ph ph-has-image" : "ph";
+}
+
+export function buildMarketingHtml(images: MarketingImages = {}): string {
+  const barberPhotos = images.barbers ?? [];
+  return `
 <div class="preloader" id="preloader" aria-hidden="true">
   <span class="preloader-mark">DB</span>
   <span class="preloader-line"></span>
@@ -74,11 +91,11 @@ export const marketingHtml = `
       </div>
 
       <div class="hero-media" data-reveal>
-        <div class="ph">
-          <div class="ph-tag ph-tag-compact">
+        <div class="${phClass(images.hero)}">
+          ${photoOrPlaceholder(images.hero, `<div class="ph-tag ph-tag-compact">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
             <span>Retrato de sillón — luz cálida</span>
-          </div>
+          </div>`)}
         </div>
         <div class="float-card">
           <b>4.9</b>
@@ -109,15 +126,15 @@ export const marketingHtml = `
     </div>
 
     <div class="compare" id="compareSlider" data-reveal style="--pos:50%;">
-      <div class="compare-panel compare-after ph">
-        <div class="ph-tag">
+      <div class="compare-panel compare-after ph${images.compareAfter ? " ph-has-image" : ""}">
+        ${photoOrPlaceholder(images.compareAfter, `<div class="ph-tag">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
-        </div>
+        </div>`)}
       </div>
-      <div class="compare-panel compare-before ph">
-        <div class="ph-tag">
+      <div class="compare-panel compare-before ph${images.compareBefore ? " ph-has-image" : ""}">
+        ${photoOrPlaceholder(images.compareBefore, `<div class="ph-tag">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg>
-        </div>
+        </div>`)}
       </div>
       <span class="compare-label label-before">Antes</span>
       <span class="compare-label label-after">Después</span>
@@ -192,28 +209,28 @@ export const marketingHtml = `
 
     <div class="barber-grid">
       <div class="barber-card" data-reveal>
-        <div class="ph"><div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div></div>
+        <div class="ph${barberPhotos[0] ? " ph-has-image" : ""}">${photoOrPlaceholder(barberPhotos[0], `<div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div>`)}</div>
         <h3>Mateo Rivas</h3>
         <span class="spec">Especialista en fades</span>
         <p class="bio">Diez años definiendo líneas limpias y degradados de precisión milimétrica.</p>
         <a href="/reservar" class="btn-line">Reservar con Mateo →</a>
       </div>
       <div class="barber-card" data-reveal>
-        <div class="ph"><div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div></div>
+        <div class="ph${barberPhotos[1] ? " ph-has-image" : ""}">${photoOrPlaceholder(barberPhotos[1], `<div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div>`)}</div>
         <h3>Julián Torres</h3>
         <span class="spec">Barba y navaja</span>
         <p class="bio">Formado en barbería clásica; maestro de la toalla caliente y el afeitado tradicional.</p>
         <a href="/reservar" class="btn-line">Reservar con Julián →</a>
       </div>
       <div class="barber-card" data-reveal>
-        <div class="ph"><div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div></div>
+        <div class="ph${barberPhotos[2] ? " ph-has-image" : ""}">${photoOrPlaceholder(barberPhotos[2], `<div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div>`)}</div>
         <h3>Simón Vega</h3>
         <span class="spec">Cortes de autor</span>
         <p class="bio">Cortes a medida para rostros y estilos de vida distintos, sin recetas genéricas.</p>
         <a href="/reservar" class="btn-line">Reservar con Simón →</a>
       </div>
       <div class="barber-card" data-reveal>
-        <div class="ph"><div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div></div>
+        <div class="ph${barberPhotos[3] ? " ph-has-image" : ""}">${photoOrPlaceholder(barberPhotos[3], `<div class="ph-tag"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l2-3h12l2 3M4 7v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7h16M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/></svg><span>Retrato — luz de estudio</span></div>`)}</div>
         <h3>Noah Dumas</h3>
         <span class="spec">Color y textura</span>
         <p class="bio">Especialista en canas, textura y acabados mate para un look sin esfuerzo.</p>
@@ -375,3 +392,4 @@ export const marketingHtml = `
   <a href="/reservar" class="btn btn-gold">Reservar cita</a>
 </div>
 `;
+}

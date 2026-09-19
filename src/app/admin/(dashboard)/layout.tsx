@@ -25,6 +25,9 @@ export default function AdminShellLayout({ children }: { children: React.ReactNo
           <Link href="/admin/horario" className="px-3 py-2 hover:text-gold-bright text-cream-dim">
             Horario del local
           </Link>
+          <Link href="/admin/fotos" className="px-3 py-2 hover:text-gold-bright text-cream-dim">
+            Fotos
+          </Link>
         </nav>
         <div className="sm:mt-auto">
           <LogoutButton />

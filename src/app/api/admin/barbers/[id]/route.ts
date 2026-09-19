@@ -8,6 +8,7 @@ const patchSchema = z.object({
   specialty: z.string().trim().max(120).optional().or(z.literal("")),
   bio: z.string().trim().max(400).optional().or(z.literal("")),
   active: z.boolean().optional(),
+  photoUrl: z.string().url().nullable().optional(),
 });
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
